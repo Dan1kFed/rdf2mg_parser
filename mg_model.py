@@ -19,6 +19,8 @@ class BaseModel(peewee.Model):
 class Vertex(BaseModel):
     id = peewee.AutoField(primary_key=True)
     name = peewee.TextField(null=True)
+    attribute_prefix = peewee.TextField(null=True)
+    attribute_value = peewee.TextField(null = True)
 
     class Meta:
         table_name = 'vertex'
@@ -37,9 +39,8 @@ class Edge(BaseModel):
 class Relations(BaseModel):
     id = peewee.AutoField(primary_key=True)
     name = peewee.TextField()
-    lower_vertex_id = peewee.ForeignKeyField(Vertex)
     higher_vertex_id = peewee.ForeignKeyField(Vertex)
+    lower_vertex_id = peewee.ForeignKeyField(Vertex)
 
     class Meta:
         table_name = 'relations'
-
