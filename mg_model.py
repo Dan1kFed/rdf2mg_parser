@@ -1,7 +1,7 @@
 import peewee
 from globals import *
 
-psql_db = peewee.PostgresqlDatabase(
+psql_db_mg = peewee.PostgresqlDatabase(
     MG_DATABASE,  # Required by Peewee.
     user=MG_USER,  # Will be passed directly to psycopg2.
     password=MG_PASSWORD,  # Ditto.
@@ -13,7 +13,7 @@ class BaseModel(peewee.Model):
     """Базовая модель которая использует нащу БД"""
 
     class Meta:
-        database = psql_db
+        database = psql_db_mg
 
 
 class Vertex(BaseModel):
