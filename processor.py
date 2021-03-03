@@ -9,6 +9,7 @@ attr_list = [3, 7]
 
 
 class JSONParser:
+    """serega init"""
     pass
 
 
