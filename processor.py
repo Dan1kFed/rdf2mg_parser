@@ -8,6 +8,10 @@ ban_list = ['rdf', 'rdfs', 'dbo']
 attr_list = [3, 7]
 
 
+class JSONParser:
+    pass
+
+
 class WidthCluster:
     def __rdf2bg__(self, rdffile):
         rdf_list = []
