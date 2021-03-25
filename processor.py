@@ -9,7 +9,35 @@ attr_list = [3, 7]
 
 
 class JSONParser:
-    pass
+    def testing_from_RDF(self, filename, range_of_testing):
+        """Это функция для тестов RDF
+        Поясняю атрибуты: filename - это имя(путь) файла по которому тестировать
+                          range_of_testing - это диапазон записей для тестирования из файла"""
+        pass
+
+
+    def download_to_JSON(self, file, ban_list: list, attr_list: list, orineted: bool):
+        """Удали pass и пиши вместо него.
+        Это функция записи для чуваков извне
+        Поясняю атрибуты: file - это файл который придет на вход, его надо открыть и его читать (смотри как это делаю я
+                                в функции __rdf2bg__)
+                         ban_list - это список предикатов в файле, которые надо писать в поле ban_list (см. фото)
+                         attr_list - это список предикатов в файле, которые надо писать в поле attr_list (см. фото)
+                         orineted - это булевое значение которое если True - то граф ориентированный, если False - то
+                                    нет пишется в поле orineted (см. фото)"""
+        pass
+
+    def output_to_JSON(self, clusters, vert_list: list, edge_list: list, attr_list: list, orineted: bool):
+        """Удали pass и пиши вместо него.
+        Это функция записи для меня
+        Поясняю атрибуты: clusters - это метавершины, чтобы записывать в parent придет в виде dict вида: {'name': 'a'
+                                                                                                          'verts': ['b', 'c']}
+                         vert_list - это список вершин, которые надо писать в поле vertices (см. фото)
+                         edge_list - это список связей, которые надо писать в поле edges (см. фото)
+                         attr_list - это список атрибутов, которые надо писать в поле attributes (см. фото)
+                         orineted - это булевое значение которое если True - то граф ориентированный, если False - то
+                                    нет пишется в поле orineted (см. фото)"""
+        pass
 
 
 class WidthCluster:
