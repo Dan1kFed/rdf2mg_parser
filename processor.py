@@ -1,7 +1,7 @@
 from bg_model import Subject, Predicate, BGraph, psql_db
 from mg_model import Vertex, Edge, Relations, psql_db_mg
 import matplotlib.pyplot as plt
-import markov_clustering as mc
+#import markov_clustering as mc
 import networkx as nx
 
 ban_list = ['rdf', 'rdfs', 'dbo']
@@ -16,28 +16,30 @@ class JSONParser:
         pass
 
 
-    def download_to_JSON(self, file, ban_list: list, attr_list: list, orineted: bool):
-        """Удали pass и пиши вместо него.
-        Это функция записи для чуваков извне
-        Поясняю атрибуты: file - это файл который придет на вход, его надо открыть и его читать (смотри как это делаю я
-                                в функции __rdf2bg__)
-                         ban_list - это список предикатов в файле, которые надо писать в поле ban_list (см. фото)
-                         attr_list - это список предикатов в файле, которые надо писать в поле attr_list (см. фото)
-                         orineted - это булевое значение которое если True - то граф ориентированный, если False - то
-                                    нет пишется в поле orineted (см. фото)"""
-        pass
+    def download_to_JSON(self, ttlfile, ban_list: list, attr_list: list, oriented: bool):
+        bigraph_list = []
+        for line in open(ttlfile, 'r').readlines():
+            bigraph_dict = {}
+            if line.startswith('w') and not any(map(lambda w: w in line, ban_list)):
+                splited_line = line.split(' ')
+                bigraph_dict['subject'] = splited_line[0]
+                bigraph_dict['predicate'] = splited_line[1]
+                bigraph_dict['object'] = splited_line[2]
+                bigraph_list.append(bigraph_dict)
+        inJSON_dict = {}
+        inJSON_dict['oriented'] = oriented
+        inJSON_dict['attributes'] = attr_list
+        inJSON_dict['bigraph'] = bigraph_list
+        inJSON_dict['ban_list'] = ban_list
+        return inJSON_dict
 
-    def output_to_JSON(self, clusters, vert_list: list, edge_list: list, attr_list: list, orineted: bool):
-        """Удали pass и пиши вместо него.
-        Это функция записи для меня
-        Поясняю атрибуты: clusters - это метавершины, чтобы записывать в parent придет в виде dict вида: {'name': 'a'
-                                                                                                          'verts': ['b', 'c']}
-                         vert_list - это список вершин, которые надо писать в поле vertices (см. фото)
-                         edge_list - это список связей, которые надо писать в поле edges (см. фото)
-                         attr_list - это список атрибутов, которые надо писать в поле attributes (см. фото)
-                         orineted - это булевое значение которое если True - то граф ориентированный, если False - то
-                                    нет пишется в поле orineted (см. фото)"""
-        pass
+    def output_to_JSON(self, clusters, vert_list: list, edge_list: list, attr_list: list, oriented: bool):
+        outJSON_dict = {}
+        outJSON_dict['oriented'] = oriented
+        outJSON_dict['vertices'] = vert_list
+        outJSON_dict['attributes'] = attr_list
+        outJSON_dict['edges'] = edge_list
+        return outJSON_dict
 
 
 class WidthCluster:
@@ -157,11 +159,11 @@ class LengthCluster:
     def markov_clustering(nx_graph):
         matrix = nx.to_scipy_sparse_matrix(nx_graph)
         print('clustreing...')
-        result = mc.run_mcl(matrix)  # run MCL with default parameters
-        clusters = mc.get_clusters(result)
+        #result = mc.run_mcl(matrix)  # run MCL with default parameters
+        #clusters = mc.get_clusters(result)
         print('drawing...')
         plt.rcParams["figure.figsize"] = (40, 40)
-        mc.draw_graph(matrix, clusters)
+        #mc.draw_graph(matrix, clusters)
 
 
 print('ffff')
@@ -169,8 +171,8 @@ print('ffff')
 # psql_db_mg.drop_tables([Vertex, Edge, Relations])
 # psql_db_mg.create_tables([Vertex, Edge, Relations])
 # WidthCluster.rdf2mg('aaa')
-a = LengthCluster.make_graph_from_pg()
-LengthCluster.markov_clustering(a)
+#a = LengthCluster.make_graph_from_pg()
+#LengthCluster.markov_clustering(a)
 # print('hui')
 # psql_db.drop_tables([Subject, Predicate, BGraph])
 # psql_db.create_tables([Subject, Predicate, BGraph])
