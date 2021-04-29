@@ -1,26 +1,42 @@
 from bg_model import Subject, Predicate, BGraph, psql_db
 from mg_model import Vertex, Edge, Relations, psql_db_mg
+import copy
 import matplotlib.pyplot as plt
-#import markov_clustering as mc
+import markov_clustering as mc
 import networkx as nx
 
 ban_list = ['rdf', 'rdfs', 'dbo']
-attr_list = [3, 7]
+attr_list = ['oa:hasTarget', 'xsd:dateTime']
 
 
 class JSONParser:
-    def testing_from_RDF(self, filename, range_of_testing):
-        """Это функция для тестов RDF
-        Поясняю атрибуты: filename - это имя(путь) файла по которому тестировать
-                          range_of_testing - это диапазон записей для тестирования из файла"""
-        pass
+    @staticmethod
+    def _get_metavertices_(cluster_list: list, verts_list: list) -> list:
+        """Это функция для создания листа с метавершинами"""
+        vert_list = []
+        for cl in range(len(cluster_list)):
+            metavert_dict = {'name':cluster_list[cl]['cluster'],
+                             'parent':'None'}
+            for vert in cluster_list[cl]['vertices']:
+                vert_dict = {'name':vert,
+                             'parent':metavert_dict['name']}
+                vert_list.append(vert_dict)
+                verts_list.remove(vert)
+            vert_list.append(metavert_dict)
+        for vert in verts_list:
+            vert_dict = {'name':vert,
+                         'parent':'None'}
+            vert_list.append(vert_dict)
+        return vert_list
 
-
-    def download_to_JSON(self, ttlfile, ban_list: list, attr_list: list, oriented: bool):
+    @staticmethod
+    def download_to_JSON(ttlfile, ban_list: list, attr_list: list, oriented: bool) -> dict:
+        """TODO: сделать более универсальным"""
         bigraph_list = []
         for line in open(ttlfile, 'r').readlines():
             bigraph_dict = {}
-            if line.startswith('w') and not any(map(lambda w: w in line, ban_list)):
+            if line.startswith('w') and not any(map(lambda w:w in line, ban_list)) \
+                    and not any(map(lambda w:w in line, attr_list)):
                 splited_line = line.split(' ')
                 bigraph_dict['subject'] = splited_line[0]
                 bigraph_dict['predicate'] = splited_line[1]
@@ -33,40 +49,31 @@ class JSONParser:
         inJSON_dict['ban_list'] = ban_list
         return inJSON_dict
 
-    def output_to_JSON(self, clusters, vert_list: list, edge_list: list, attr_list: list, oriented: bool):
+    @staticmethod
+    def output_to_JSON(cluster, inJSON: dict) -> dict:
+        edge_list = []
+        bigraph_list = copy.deepcopy(inJSON['bigraph'])
+        print(inJSON['bigraph'][2])
+        bigraph_list_pop = [val.pop('predicate') for val in bigraph_list]
+        vert_list = list(set(val for dic in bigraph_list for val in dic.values()))
+        bigraph_list = copy.deepcopy(inJSON['bigraph'])
+        for edge in bigraph_list:
+            edge_dict = {'name': edge['predicate'],
+                         'source': edge['subject'],
+                         'direction': edge['object']}
+            edge_list.append(edge_dict)
+        vertful_list = JSONParser._get_metavertices_(cluster_list = cluster, verts_list = vert_list)
         outJSON_dict = {}
-        outJSON_dict['oriented'] = oriented
-        outJSON_dict['vertices'] = vert_list
-        outJSON_dict['attributes'] = attr_list
+        outJSON_dict['oriented'] = inJSON['oriented']
+        outJSON_dict['vertices'] = vertful_list
+        outJSON_dict['attributes'] = inJSON['attributes']
         outJSON_dict['edges'] = edge_list
         return outJSON_dict
 
 
 class WidthCluster:
-    def __rdf2bg__(self, rdffile):
-        rdf_list = []
-        for line in open(rdffile, 'r').readlines():
-            rdf_dict = {}
-            if line.startswith('w') and not any(map(lambda w: w in line, ban_list)):
-                splited_line = line.split(' ')
-                rdf_dict['subject'] = splited_line[0]
-                rdf_dict['predicate'] = splited_line[1]
-                rdf_dict['object'] = splited_line[2]
-                rdf_list.append(rdf_dict)
-        uniq_subj = sorted(list(set(dic['subject'] for dic in rdf_list)))
-        uniq_pred = sorted(list(set(dic['predicate'] for dic in rdf_list)))
-        for subj in uniq_subj:
-            Subject.create(name = subj)
-        for pred in uniq_pred:
-            Predicate.create(name = pred)
-        for trip in rdf_list:
-            subj = Subject.get(Subject.name == trip['subject'])
-            pred = Predicate.get(Predicate.name == trip['predicate'])
-            BGraph.create(subject_id = subj.id,
-                          predicate_id = pred.id,
-                          object_name = trip['object'])
-
     def __bg2mg__(self, subject, pc_list):
+        """TODO: удолить???"""
         """Все записи из bggraph у которых предикат == [3, 7] пишем в атрибуты
          vertex, создаем vertex по каждому subject, делаем get_or_none обжекта
          из таблицы bggrapg, если get то делаем связь двух vertex, если none
@@ -106,6 +113,7 @@ class WidthCluster:
 
     @staticmethod
     def rdf2mg(rdffile):
+        """TODO: переписать для обработки дикта"""
         """1) Делаем rdf2bg. (пока можно закоментить, чтобы время сэкономить)
         2) Делаем анализ таблицы bggraph: если predicate не 3 и не 7, то для каждого
         subject составляем ранжирование наиболее частых predicate в виде дикта:
@@ -136,43 +144,63 @@ class WidthCluster:
 
 class LengthCluster:
     @staticmethod
-    def make_graph_from_pg():
+    def make_graph_from_JSONin(JSONin):
         g = nx.Graph()
-        sub_lenght = len(list(Subject.select()))
-        vert_list = list(Subject.select().dicts())
-        for i in range(1000):
-            g.add_node(vert_list[i]['name'])
-        for subj in range(1000):
-            subj_name = list(Subject.select(Subject.name).where(Subject.id == subj).dicts())
-            trip = list(BGraph.select().where(BGraph.subject_id == subj).dicts())
-            if trip:
-                preds = set([pred['predicate_id'] for pred in trip])  # уникальные предикаты
-                for pred in preds:
-                    names = BGraph.select(BGraph.object_name).where(BGraph.subject_id == subj,
-                                                                    BGraph.predicate_id == pred).dicts()
-                    vert_to_list = [vert['object_name'] for vert in names]
-                    for v in vert_to_list:
-                        g.add_edge(subj_name[0]['name'], v)
+        bigraph_length = len(JSONin['bigraph'])
+        bigraph_list = copy.deepcopy(JSONin['bigraph'])
+        bigraph_list_pop = [val.pop('predicate') for val in bigraph_list]
+        vert_list = list(set(val for dic in bigraph_list for val in dic.values()))
+        for vert in vert_list:
+            g.add_node(vert)
+        for edge in range(bigraph_length):
+            g.add_edge(bigraph_list[edge]['subject'], bigraph_list[edge]['object'])
         return g
 
     @staticmethod
-    def markov_clustering(nx_graph):
+    def cluster_transform(cluster_list, nx_graph):
+        """Метод для трансофрмации исходного графа и кластеров из маркова к виду:
+         [{cluster: name,
+           vertices: [vert1, vert2]}]"""
+        transformed_clusters = []
+        original_verts = list(nx_graph.nodes)
+        cluster_list = [tup for tup in cluster_list if len(tup) >= 2]
+        for i in range(len(cluster_list)):
+            transformed_cluster_dict = {}
+            transformed_cluster_vert_list = []
+            transformed_cluster_dict['cluster'] = i
+            for vert in range(len(cluster_list[i])):
+                transformed_cluster_vert_list.append(original_verts[cluster_list[i][vert]])
+            transformed_cluster_dict['vertices'] = transformed_cluster_vert_list
+            transformed_clusters.append(transformed_cluster_dict)
+        return transformed_clusters
+
+    @staticmethod
+    def markov_clustering(JSONin):
+        nx_graph = LengthCluster.make_graph_from_JSONin(JSONin)
         matrix = nx.to_scipy_sparse_matrix(nx_graph)
         print('clustreing...')
-        #result = mc.run_mcl(matrix)  # run MCL with default parameters
-        #clusters = mc.get_clusters(result)
-        print('drawing...')
-        plt.rcParams["figure.figsize"] = (40, 40)
-        #mc.draw_graph(matrix, clusters)
+        result = mc.run_mcl(matrix)  # run MCL with default parameters
+        clusters = mc.get_clusters(result)
+        transformed_clusters = LengthCluster.cluster_transform(cluster_list = clusters, nx_graph = nx_graph)
+        # print(clusters)
+        # print('drawing...')
+        # plt.rcParams["figure.figsize"] = (40, 40)
+        # mc.draw_graph(matrix, clusters)
+        return transformed_clusters
 
 
 print('ffff')
 """НЕ ТРОГАЙ, СНАЧАЛА ПОДУМАЙ"""
+# WidthCluster.rdf2mg('aaa')
+# a = JSONParser.download_to_JSON(ttlfile = 'ru_0_rdf_result.ttl', ban_list = ban_list, attr_list = attr_list,
+#                                 oriented = False)
+# clusters = LengthCluster.markov_clustering(a)
+# out = JSONParser.output_to_JSON(clusters, a)
+# print(out)
+
 # psql_db_mg.drop_tables([Vertex, Edge, Relations])
 # psql_db_mg.create_tables([Vertex, Edge, Relations])
-# WidthCluster.rdf2mg('aaa')
-#a = LengthCluster.make_graph_from_pg()
-#LengthCluster.markov_clustering(a)
+
 # print('hui')
 # psql_db.drop_tables([Subject, Predicate, BGraph])
 # psql_db.create_tables([Subject, Predicate, BGraph])

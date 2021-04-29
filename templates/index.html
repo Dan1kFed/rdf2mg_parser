@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <meta charset="UTF-8">
+    <!-- bootstrap style: https://getbootstrap.com/docs/4.3/getting-started/introduction/ -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Universal metagraph parser</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="card text-center">
+        <div class="card-header">
+            <h3>Universal metagraph parser</h3>
+        </div>
+
+        <div class="card-body">
+            <blockquote class="blockquote mb-0">
+                <form method="POST">
+                    <label class="sr-only">Input password</label>
+                    <input type="file"  id="myFile" name="filename">
+                    <input type="text" class="form-control" name="attr_list" placeholder="Введите атрибуты">
+                    <input type="text" class="form-control" name="ban_list" placeholder="Введите то что попадет в бан">
+                    <label class="container">Граф ориентриованный
+                        <input type="checkbox" checked="checked" name="oriented">
+                        <span class="checkmark"></span>
+                    </label>
+                    <input type="submit" class="btn btn-primary btn-block mt-2" value="Преобразовать в метаграф">
+                </form>
+
+                <form>
+                    <div>
+                        <div>
+                            <label for="down_file">Ваш файл</label>
+                            <input type="text" class="form-control" id="down_file" placeholder="{{ down_file }}"
+                                   readonly>
+                        </div>
+                        <button class="btn"><i class="fa fa-download"></i> Скачать</button>
+                        </div>
+                    </div>
+                </form>
+            </blockquote>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
