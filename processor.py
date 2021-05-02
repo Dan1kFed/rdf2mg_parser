@@ -33,7 +33,10 @@ class JSONParser:
     def download_to_JSON(ttlfile, ban_list: list, attr_list: list, oriented: bool) -> dict:
         """TODO: сделать более универсальным"""
         bigraph_list = []
-        for line in open(ttlfile, 'r').readlines():
+        lines_in_file = ttlfile.read().decode('utf-8')
+        lines_in_file = lines_in_file.split('\n')
+        print(lines_in_file[:20])
+        for line in lines_in_file:
             bigraph_dict = {}
             if line.startswith('w') and not any(map(lambda w:w in line, ban_list)) \
                     and not any(map(lambda w:w in line, attr_list)):
@@ -42,6 +45,8 @@ class JSONParser:
                 bigraph_dict['predicate'] = splited_line[1]
                 bigraph_dict['object'] = splited_line[2]
                 bigraph_list.append(bigraph_dict)
+            else:
+                pass
         inJSON_dict = {}
         inJSON_dict['oriented'] = oriented
         inJSON_dict['attributes'] = attr_list
@@ -187,21 +192,3 @@ class LengthCluster:
         # plt.rcParams["figure.figsize"] = (40, 40)
         # mc.draw_graph(matrix, clusters)
         return transformed_clusters
-
-
-print('ffff')
-"""НЕ ТРОГАЙ, СНАЧАЛА ПОДУМАЙ"""
-# WidthCluster.rdf2mg('aaa')
-# a = JSONParser.download_to_JSON(ttlfile = 'ru_0_rdf_result.ttl', ban_list = ban_list, attr_list = attr_list,
-#                                 oriented = False)
-# clusters = LengthCluster.markov_clustering(a)
-# out = JSONParser.output_to_JSON(clusters, a)
-# print(out)
-
-# psql_db_mg.drop_tables([Vertex, Edge, Relations])
-# psql_db_mg.create_tables([Vertex, Edge, Relations])
-
-# print('hui')
-# psql_db.drop_tables([Subject, Predicate, BGraph])
-# psql_db.create_tables([Subject, Predicate, BGraph])
-# rdf2bg('ru_0_rdf_result.ttl')

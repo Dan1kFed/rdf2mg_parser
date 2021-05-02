@@ -21,28 +21,20 @@
 
         <div class="card-body">
             <blockquote class="blockquote mb-0">
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
                     <label class="sr-only">Input password</label>
-                    <input type="file"  id="myFile" name="filename">
-                    <input type="text" class="form-control" name="attr_list" placeholder="Введите атрибуты">
-                    <input type="text" class="form-control" name="ban_list" placeholder="Введите то что попадет в бан">
+                    <input type="file" name="file">
+                    <label>
+                        <input type="text" class="form-control" name="attr_list" placeholder="Введите атрибуты">
+                    </label>
+                    <label>
+                        <input type="text" class="form-control" name="ban_list" placeholder="Введите то что попадет в бан">
+                    </label>
                     <label class="container">Граф ориентриованный
                         <input type="checkbox" checked="checked" name="oriented">
                         <span class="checkmark"></span>
                     </label>
                     <input type="submit" class="btn btn-primary btn-block mt-2" value="Преобразовать в метаграф">
-                </form>
-
-                <form>
-                    <div>
-                        <div>
-                            <label for="down_file">Ваш файл</label>
-                            <input type="text" class="form-control" id="down_file" placeholder="{{ down_file }}"
-                                   readonly>
-                        </div>
-                        <button class="btn"><i class="fa fa-download"></i> Скачать</button>
-                        </div>
-                    </div>
                 </form>
             </blockquote>
         </div>
