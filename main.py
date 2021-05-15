@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, render_template, abort, send_file
 import json
 import os
+from itertools import chain
 
 import processor
 
@@ -32,7 +33,9 @@ def hello_world():
                                                          ban_list = ban_list,
                                                          attr_list = attr_list,
                                                          oriented = oriented)
-        clusters = processor.LengthCluster.markov_clustering(inp_json)
+        clusters_length = processor.LengthCluster.markov_clustering(inp_json)
+        clusters_width = processor.WidthCluster.rdf2mg(inp_json)
+        clusters = list(chain(clusters_length, clusters_width))
         out = processor.JSONParser.output_to_JSON(clusters, inp_json)
         with open('result.json', 'w') as fp:
             json.dump(out, fp)
