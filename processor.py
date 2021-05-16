@@ -1,8 +1,7 @@
 import copy
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import markov_clustering as mc
 import networkx as nx
-from itertools import chain
 
 
 class JSONParser:
