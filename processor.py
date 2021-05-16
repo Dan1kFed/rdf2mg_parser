@@ -31,10 +31,12 @@ class JSONParser:
     @staticmethod
     def download_to_JSON(ttlfile, ban_list, attr_list, oriented: bool) -> dict:
         """TODO: сделать более универсальным"""
-        ban_list = ban_list.replace("'", "")
-        ban_list = ban_list.split(', ')
-        attr_list = attr_list.replace("'", "")
-        attr_list = attr_list.split(', ')
+        if ban_list:
+            ban_list = ban_list.replace("'", "")
+            ban_list = ban_list.split(', ')
+        if attr_list:
+            attr_list = attr_list.replace("'", "")
+            attr_list = attr_list.split(', ')
         bigraph_list = []
         lines_in_file = ttlfile.read().decode('utf-8')
         lines_in_file = lines_in_file.split('\n')
